@@ -180,6 +180,7 @@ class Fpm:
               f'Author    : {self.app_author}\n'
               f'License   : {self.app_license}\n'
               f'File      : {self.app_exec}\n'
+              f'SCM       : {self.app_scm}\n'
               f'Repository: {self.app_repo}')
 
     def update_package_list(self, package: str):
