@@ -30,6 +30,7 @@ class Fpm:
         self.app_repo: str = ''
         self.app_folder: str = ''
         self.app_build_instruction: str = ''
+        self.app_scm: str = ''
 
     @staticmethod
     def is_exists(data):
@@ -84,10 +85,10 @@ class Fpm:
 
                 if character.lower() == 'y':
                     from os import chdir, getenv
-                    if Path('/usr/bin/git').exists():
+                    if Path(f'/usr/bin/{self.app_scm}').exists():
                         chdir(getenv('HOME'))
                         from subprocess import run, DEVNULL
-                        run(['git', 'clone', repository], stdout=DEVNULL)
+                        run([self.app_scm, 'clone', repository], stdout=DEVNULL)
                         path = '{home}/{folder}'.format(home=getenv('HOME'), folder=folder)
                         chdir(path)
 
@@ -195,11 +196,10 @@ class Fpm:
             else:
                 print('Aborted.')
 
-    @staticmethod
-    def fetch_repository_data(repository: str):
+    def fetch_repository_data(self, repository: str):
         if not Path('/etc/fpm').exists():
             from subprocess import run, DEVNULL
-            run(['git', 'clone', repository, '/etc/fpm'], stdout=DEVNULL)
+            run([self.app_scm, 'clone', repository, '/etc/fpm'], stdout=DEVNULL)
 
     def parse_repository_file(self, arg: str):
         if Path(f'/etc/fpm/packages/{arg}.repo').exists():
@@ -214,6 +214,12 @@ class Fpm:
         self.app_repo = self.get_line_of(path, 'REPOSITORY=')
         self.app_folder = self.get_line_of(path, 'REPOSITORY_FOLDER=')
         self.app_build_instruction = self.get_build_recipe(path)
+        self.app_scm = self.get_line_of(path, 'SCM=')
+
+        if self.app_scm is None:
+            self.app_scm = 'git'
+        elif self.app_scm.lower() == 'mercurial':
+            self.app_scm = 'hg'
 
         print(self.app_name)
 
@@ -241,7 +247,7 @@ class Fpm:
                 if 'instruction()' in line:
                     is_recipe = True
 
-        return ''
+        return None
 
 
 init = Fpm()
