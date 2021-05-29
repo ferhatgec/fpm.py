@@ -29,6 +29,7 @@ class Fpm:
         self.app_exec: str = ''
         self.app_repo: str = ''
         self.app_folder: str = ''
+        self.app_build_instruction: str = ''
 
     @staticmethod
     def is_exists(data):
@@ -206,6 +207,7 @@ class Fpm:
         self.app_exec = self.get_line_of(path, 'EXEC=')
         self.app_repo = self.get_line_of(path, 'REPOSITORY=')
         self.app_folder = self.get_line_of(path, 'REPOSITORY_FOLDER=')
+        self.app_build_instruction = self.get_build_recipe(path)
 
         print(self.app_name)
 
@@ -216,6 +218,23 @@ class Fpm:
                 if f'{substring}' in line:
                     return line.replace(f'{substring}', '')[:-1]
 
+
+    @staticmethod
+    def get_build_recipe(file: str):
+        is_recipe = False
+        recipe: str = ''
+        with open(file) as file:
+            for line in file:
+                if is_recipe:
+                    if 'instruction <' in line:
+                        is_recipe = False
+                        return recipe
+
+                    recipe += line
+                    continue
+
+                if 'instruction()' in line:
+                    is_recipe = True
 
 init = Fpm()
 from sys import argv
