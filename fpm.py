@@ -58,6 +58,10 @@ class Fpm:
     def uninstall(data):
         print(f'Do you want to uninstall {data}? (y/n) : ', end='')
 
+    @staticmethod
+    def __keep(data):
+        print(f'Do you want to keep source files of {data}? (y/n) : ', end='')
+
     def what_is_this(self, arg: str, package: str):
         if arg == '--i' or arg == '--install':
             self.install_function(package)
@@ -67,6 +71,8 @@ class Fpm:
             self.info_function(package)
         elif arg == '--upd' or arg == '--update':
             self.update_package_list(package)
+        elif arg == '--k' or arg == '--keep':
+            self.keep_function(package)
         else:
             self.help_function()
 
@@ -182,6 +188,34 @@ class Fpm:
               f'File      : {self.app_exec}\n'
               f'SCM       : {self.app_scm}\n'
               f'Repository: {self.app_repo}')
+
+    def keep_function(self, arg: str):
+        if not Path(f'{default_directory}/packages/').exists():
+            self.fetch_repository_data(default_fpi_repository)
+
+        self.parse_repository_file(arg)
+        self.keep(self.app_name,
+                     self.app_repo,
+                     self.app_exec,
+                     self.app_folder)
+
+    def keep(self,
+                name: str,
+                repository: str,
+                object: str,
+                folder: str):
+        self.__keep(name)
+        character = input()
+
+        if character.lower() == 'y':
+            from os import chdir, getenv
+            from subprocess import run, DEVNULL
+
+            chdir(getenv('HOME'))
+            run([self.app_scm, 'clone', self.app_repo], stdout=DEVNULL)
+        else:
+            print('Aborted.')
+
 
     def update_package_list(self, package: str):
         if not Path(f'{default_directory}/packages/').exists():
