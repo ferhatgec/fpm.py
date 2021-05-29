@@ -90,8 +90,14 @@ class Fpm:
                         run(['git', 'clone', repository], stdout=DEVNULL)
                         path = '{home}/{folder}'.format(home=getenv('HOME'), folder=folder)
                         chdir(path)
+
                         if Path('/usr/bin/sudo').exists():
-                            run(['sudo', 'sh', 'install.sh'], stdout=DEVNULL)
+                            if len(self.app_build_instruction) > 0:
+                                for line in self.app_build_instruction.splitlines():
+                                    run(line.split(' '), stdout=DEVNULL)
+                            else:
+                                run(['sudo', 'sh', 'install.sh'], stdout=DEVNULL)
+
                             if Path(f'/bin/{object}').exists() or Path(f'/usr/bin/{object}').exists():
                                 print('Installed!')
                             else:
@@ -218,7 +224,6 @@ class Fpm:
                 if f'{substring}' in line:
                     return line.replace(f'{substring}', '')[:-1]
 
-
     @staticmethod
     def get_build_recipe(file: str):
         is_recipe = False
@@ -230,11 +235,14 @@ class Fpm:
                         is_recipe = False
                         return recipe
 
-                    recipe += line
+                    recipe += line.strip()
                     continue
 
                 if 'instruction()' in line:
                     is_recipe = True
+
+        return ''
+
 
 init = Fpm()
 from sys import argv
