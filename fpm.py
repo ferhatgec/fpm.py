@@ -149,7 +149,13 @@ class Fpm:
     @staticmethod
     def help_function():
         print('Fegeya Package Manager (fpm)\n'
-              'Usage: fpm [--i --install] [--uni --uninstall] [--info] [--update] package')
+              'Usage: fpm [options] package\n'
+              '-----\n'
+              '[--i --install    ]: Install package\n'
+              '[--uni --uninstall]: Uninstall package\n'
+              '[--info           ]: More information about package\n'
+              '[--update         ]: Update package list\n'
+              '[--k --keep       ]: Keep source code of package')
 
     def install_function(self, arg: str):
         print('Checking.')
